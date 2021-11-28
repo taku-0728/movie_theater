@@ -1,0 +1,20 @@
+version: '3.8' # composeファイルのバーション指定
+services:
+  # server
+  server: # service名
+    build: ./server # ビルドに使用するDockerfileがあるディレクトリ指定
+    tty: true # コンテナの起動永続化
+    # volumes:
+    #   - ./server:/server/work # マウントディレクトリ指定
+    container_name: server
+    ports:
+      - 8080:8080
+  # client
+  client:
+    build: ./client
+    tty: true
+    volumes:
+      - ./client:/client/work # マウントディレクトリ指定
+    container_name: client
+    ports:
+      - 8000:8000
