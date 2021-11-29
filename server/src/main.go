@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "strings"
     "net/http"
     "github.com/PuerkitoBio/goquery"
     "github.com/djimenez/iconv-go"
@@ -22,12 +23,36 @@ func main() {
 
     if err != nil {
         fmt.Println("エンコーディングに失敗しました。")
+        fmt.Errorf("Some context: %v", err)
+        return
     }
 
     // HTMLパース
-    doc, _ := goquery.NewDocumentFromReader(utfBody)
+    doc, err := goquery.NewDocumentFromReader(utfBody)
 
+    if err != nil {
+        fmt.Println("HTMLのパースに失敗しました。")
+        return
+    }
+
+    place := "東京都"
+
+    theaterList := []string{}
     // // titleを抜き出し
-    result := doc.Find("title").Text()
-    fmt.Println(result)
+    doc.Find(".section > h1").Each(func(_ int, page *goquery.Selection) {
+        // HTMLの中から劇場一覧のDOMを指定
+        if strings.Index(page.Text(), "劇場一覧") != -1 {
+            // 劇場一覧のDOMの中から都道府県を指定
+            page.Next().Find(".theater-list-area > h4").Each(func(_ int, prefectures *goquery.Selection) {
+                if strings.Index(prefectures.Text(), place) != -1 {
+                    node := prefectures.Next().Find(".item > a > span").Nodes
+
+                    for i := 0; i < len(node); i++ {
+                        theaterList = append(theaterList, node[i].FirstChild.Data)
+                    }
+                    fmt.Println(theaterList)
+                }
+            })
+        }
+    })
 }
