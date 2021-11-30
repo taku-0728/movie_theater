@@ -8,13 +8,14 @@ services:
     #   - ./server:/server/work # マウントディレクトリ指定
     container_name: server
     ports:
-      - 8080:8080
+      - 8000:8000
   # client
   client:
     build: ./client
     tty: true
     volumes:
-      - ./client:/client/work # マウントディレクトリ指定
+      - ./client:/work # マウントディレクトリ指定
     container_name: client
     ports:
-      - 8000:8000
+      - 8080:8080
+    command: yarn serve

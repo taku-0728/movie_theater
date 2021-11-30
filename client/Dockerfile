@@ -1,11 +1,11 @@
 #nodeイメージをpullする
-FROM node:latest
+FROM node:14.18.1
 
 #working directory
-WORKDIR /client/work
+WORKDIR /work
 
-#vuecliインストール
-RUN npm install -g @vue/cli
+# カレントディレクトリのファイル全てをコンテナ内にコピー
+COPY . .
 
-# ホストのファイルをコンテナの作業ディレクトリに移行
-ADD ./ /client/work
+# 依存モジュールのインストール
+RUN yarn install
