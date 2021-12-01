@@ -1,26 +1,37 @@
 <template>
   <form @submit.prevent="exec">
-    <input type="text" placeholder="都道府県を入力してください">
-    <button @click="send">submit</button>
+    <input type="text" name="prefectures" placeholder="都道府県を入力してください">
+    <button @click="getTheaterList">submit</button>
+    <p>{{ message }}</p>
   </form>
 </template>
 
 <script>
 export default {
   name: 'HelloWorld',
-  
+  data() {
+    return {
+      message: ''
+    };
+  },  
   methods: {
-    send: function () {
-       const url = 'http://localhost:8000';
+    async getTheaterList() {
+      const result = await this.sendRequest().then((res) => res.text());
+      this.message = result;
+      // window.alert(result);
+    },
 
-       fetch(url, {
-          method: 'POST',
-          headers: {
-            'X-Requested-With': 'csrf', // csrf header
-            'Content-Type': 'text/html',
-          },
-          body: 'test',
-        });
+    async sendRequest() {
+      const url = 'http://localhost:8000';
+
+      return fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'csrf', // csrf header
+          'Content-Type': 'application/json',
+        },
+        body: 'test',
+      });
     }
   }
 }

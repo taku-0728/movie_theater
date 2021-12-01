@@ -15,9 +15,12 @@ func main() {
     e.Use(middleware.Recover())
 
     // ルーティング
-    // e.POST("/yamabiko", handler.YamabikoAPI())
-    // e.OPTIONS("/yamabiko", handler.OptionsCheck())
+    e.POST("/", hello)
 
     // サーバー起動
     e.Start(":8000")
+}
+
+func hello(c echo.Context) error {
+    return c.String(200, "Hello, World!")
 }
