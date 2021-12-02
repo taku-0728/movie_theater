@@ -6,9 +6,11 @@ import (
     "net/http"
     "github.com/PuerkitoBio/goquery"
     "github.com/djimenez/iconv-go"
+    "github.com/labstack/echo"
 )
 
-func getMovieTheater() {
+func GetMovieTheater(c echo.Context) error {
+
     // TOHOシネマの劇場一覧サイト
     url := "https://www.tohotheater.jp/theater/find.html"
 
@@ -24,7 +26,7 @@ func getMovieTheater() {
     if err != nil {
         fmt.Println("エンコーディングに失敗しました。")
         fmt.Errorf("Some context: %v", err)
-        return
+        // return c.JSON("200", "エンコーディングに失敗しました。")
     }
 
     // HTMLパース
@@ -32,7 +34,7 @@ func getMovieTheater() {
 
     if err != nil {
         fmt.Println("HTMLのパースに失敗しました。")
-        return
+        // return c.JSON("200", "HTMLのパースに失敗しました。")
     }
 
     place := "東京都"
@@ -50,9 +52,13 @@ func getMovieTheater() {
                     for i := 0; i < len(node); i++ {
                         theaterList = append(theaterList, node[i].FirstChild.Data)
                     }
-                    fmt.Println(theaterList)
+                    // return c.JSON("200", theaterList)
                 }
+                // return c.JSON("200", "劇場一覧が見つかりませんでした")
             })
         }
+        // return c.JSON("200", "劇場一覧が見つかりませんでした")
     })
+
+    return c.JSON(200, map[string]interface{}{"hello": "hello world"})
 }

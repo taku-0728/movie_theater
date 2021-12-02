@@ -3,6 +3,7 @@ package main
 import (
     "github.com/labstack/echo"
     "github.com/labstack/echo/middleware"
+    "scraping/scraping"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
     e.Use(middleware.Recover())
 
     // ルーティング
-    e.POST("/", hello)
+    e.POST("/", scraping.GetMovieTheater)
 
     // サーバー起動
     e.Start(":8000")

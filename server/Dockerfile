@@ -5,7 +5,7 @@ FROM golang:latest
 WORKDIR /server/work/
 
 # モジュールインポート
-RUN go mod init goquery
+RUN go mod init scraping
 
 RUN go get -u github.com/PuerkitoBio/goquery \
     && go get -u github.com/djimenez/iconv-go \
