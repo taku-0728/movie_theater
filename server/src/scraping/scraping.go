@@ -26,15 +26,14 @@ func GetMovieTheater(c echo.Context) error {
     if err != nil {
         fmt.Println("エンコーディングに失敗しました。")
         fmt.Errorf("Some context: %v", err)
-        // return c.JSON("200", "エンコーディングに失敗しました。")
+        return c.JSON(200, map[string]interface{}{"error": "エンコーディングに失敗しました。"})
     }
 
     // HTMLパース
     doc, err := goquery.NewDocumentFromReader(utfBody)
 
     if err != nil {
-        fmt.Println("HTMLのパースに失敗しました。")
-        // return c.JSON("200", "HTMLのパースに失敗しました。")
+        return c.JSON(200, map[string]interface{}{"error": "HTMLのパースに失敗しました。"})
     }
 
     place := "東京都"
@@ -52,13 +51,10 @@ func GetMovieTheater(c echo.Context) error {
                     for i := 0; i < len(node); i++ {
                         theaterList = append(theaterList, node[i].FirstChild.Data)
                     }
-                    // return c.JSON("200", theaterList)
                 }
-                // return c.JSON("200", "劇場一覧が見つかりませんでした")
             })
         }
-        // return c.JSON("200", "劇場一覧が見つかりませんでした")
     })
 
-    return c.JSON(200, map[string]interface{}{"hello": "hello world"})
+    return c.JSON(200, map[string]interface{}{"hello": theaterList})
 }
