@@ -1,7 +1,7 @@
 <template>
-  <form @submit.prevent="exec">
-    <input type="text" name="prefectures" placeholder="都道府県を入力してください">
-    <button @click="getTheaterList">submit</button>
+  <form @submit.prevent="getTheaterList">
+    <input type="text" v-model="prefectures" name="prefectures" placeholder="都道府県を入力してください">
+    <button type="submit">submit</button>
     <p>{{ message }}</p>
   </form>
 </template>
@@ -18,19 +18,20 @@ export default {
     async getTheaterList() {
       const result = await this.sendRequest().then((res) => res.text());
       this.message = result;
-      // window.alert(result);
     },
 
     async sendRequest() {
       const url = 'http://localhost:8000';
+      const data = new URLSearchParams();
+      data.append("prefectures",this.prefectures);
 
       return fetch(url, {
         method: 'POST',
         headers: {
           'X-Requested-With': 'csrf', // csrf header
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: 'test',
+        body: data,
       });
     }
   }

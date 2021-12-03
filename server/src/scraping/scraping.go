@@ -36,7 +36,7 @@ func GetMovieTheater(c echo.Context) error {
         return c.JSON(200, map[string]interface{}{"error": "HTMLのパースに失敗しました。"})
     }
 
-    place := "東京都"
+    place := c.FormValue("prefectures")
     
     theaterList := []string{}
     // // titleを抜き出し
