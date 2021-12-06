@@ -14,7 +14,7 @@ services:
     build: ./client
     tty: true
     volumes:
-      - ./client:/work # マウントディレクトリ指定
+      - ./client:/client/work # マウントディレクトリ指定
     container_name: client
     ports:
       - 8080:8080
