@@ -1,6 +1,7 @@
 <template>
   <form @submit.prevent="getTheaterList">
-    <input type="text" v-model="prefectures" name="prefectures" placeholder="都道府県を入力してください">
+    <input type="text" v-model="prefectures" name="prefectures" placeholder="都道府県を入力してください"><br>
+    <input type="text" v-model="title" name="title" placeholder="作品名を入力してください"><br>
     <button type="submit">submit</button>
     <p>{{ message }}</p>
   </form>
@@ -24,6 +25,7 @@ export default {
       const url = 'http://localhost:8000';
       const data = new URLSearchParams();
       data.append("prefectures",this.prefectures);
+      data.append("title",this.title);
 
       return fetch(url, {
         method: 'POST',

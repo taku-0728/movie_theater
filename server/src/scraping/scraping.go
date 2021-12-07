@@ -4,12 +4,10 @@ import (
     "fmt"
     "strings"
     "net/http"
-    "golang.org/x/text/transform"
     "github.com/PuerkitoBio/goquery"
     "github.com/djimenez/iconv-go"
     "github.com/labstack/echo"
-    "bufio"
-    "golang.org/x/text/encoding/japanese"
+    "github.com/sclevine/agouti"
 )
 
 func GetMovieTheater(c echo.Context) error {
@@ -55,45 +53,65 @@ func GetMovieTheater(c echo.Context) error {
                         theaterList = append(theaterList, href)
                 
                     })
-                    // node, _ := prefectures.Next().Find(".item > a").Attr("href")
-
-                    // for i := 0; i < len(node); i++ {
-                    //     // theaterList = append(theaterList, node[i].FirstChild.Data)
-                    //     theaterList = append(theaterList, node[i].FirstChild.Data)
-                    // }
                 }
             })
         }
     })
 
     result := []string{}
+    title := c.FormValue("title")
+
+    // Chromeを利用することを宣言
+    agoutiDriver := agouti.ChromeDriver(
+        agouti.ChromeOptions("args", []string{"--headless", "--disable-gpu", "--no-sandbox"}),
+    )
+    
+    if err := agoutiDriver.Start(); err != nil {
+        fmt.Println("Failed to start driver:%v", err)
+        return c.JSON(200, map[string]interface{}{"error": "agoutiDriver.Start()でエラー発生"})
+    }
+
+    defer agoutiDriver.Stop()
+    page, err := agoutiDriver.NewPage()
+
+    if err != nil {
+        fmt.Println("NewPage()でエラー発生")
+        fmt.Println("Some context: %v", err)
+        return c.JSON(200, map[string]interface{}{"error": "NewPage()でエラー発生"})
+    }    
 
     // 都道府県に対応する劇場のサイトに入り上映状況を取得
     for _, theater := range theaterList {
         // 各劇場サイト
         url2 := "https://hlo.tohotheater.jp/" + theater
+        page.Navigate(url2)
 
-        // GETリクエスト
-        res2, _ := http.Get(url2)
-
-        // 対象サイトのBody部分の読み取り
-        utfBody2 := transform.NewReader(bufio.NewReader(res2.Body), japanese.ShiftJIS.NewDecoder())
+        dom, err := page.HTML()
 
         if err != nil {
-            fmt.Println("エンコーディングに失敗しました2")
-            fmt.Errorf("Some context: %v", err)
-            return c.JSON(200, map[string]interface{}{"error": "エンコーディングに失敗しました2"})
+            fmt.Println("page.HTML()でエラー発生")
+            fmt.Println("Some context: %v", err)
         }
 
-        // HTMLパース
-        doc2, err := goquery.NewDocumentFromReader(utfBody2)
+        contents := strings.NewReader(dom)
 
+        doc, err := goquery.NewDocumentFromReader(contents)
         if err != nil {
-            return c.JSON(200, map[string]interface{}{"error": err})
+            fmt.Println("page.HTML()でエラー発生")
+            fmt.Println("Some context: %v", err)
         }
 
-        title2 := doc2.Find("title").Text()
-        result = append(result, title2)
+        // // titleを抜き出し
+        doc.Find(".schedule-body-section-item").Each(func(_ int, page *goquery.Selection) {
+            if strings.Contains(title, page.Find(".schedule-body-title").Text()) {
+                page.Find(".schedule-item").Each(func(_ int, element *goquery.Selection){
+                    text := element.Find(".start").Text() + "〜" + element.Find(".end").Text() + "：" + element.Find(".status").Text()
+                    result = append(result, text)
+                })
+            } 
+        })
+
+        
     }
 
 
