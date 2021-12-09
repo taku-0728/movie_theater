@@ -1,10 +1,17 @@
 <template>
-  <form @submit.prevent="getTheaterList">
-    <input type="text" v-model="prefectures" name="prefectures" placeholder="都道府県を入力してください"><br>
-    <input type="text" v-model="title" name="title" placeholder="作品名を入力してください"><br>
-    <button type="submit">submit</button>
-    <p>{{ message }}</p>
-  </form>
+  <div>
+    <form @submit.prevent="getTheaterList">
+      <input type="text" v-model="prefectures" name="prefectures" placeholder="都道府県を入力してください"><br>
+      <input type="text" v-model="title" name="title" placeholder="作品名を入力してください"><br>
+      <button type="submit">submit</button>
+    </form>
+    <div v-for='(data, key) in results' :key="key">
+      <h3>{{ data.theaterName }}</h3>
+      <div v-for='(schedule, key) in data.schedule' :key="key">
+        <p>{{ schedule }}</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -12,13 +19,14 @@ export default {
   name: 'HelloWorld',
   data() {
     return {
-      message: ''
+      results: ''
     };
   },  
   methods: {
     async getTheaterList() {
       const result = await this.sendRequest().then((res) => res.text());
-      this.message = result;
+      this.results = JSON.parse(result);
+      console.log(this.results);
     },
 
     async sendRequest() {
