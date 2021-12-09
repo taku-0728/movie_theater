@@ -21,7 +21,3 @@ func main() {
     // サーバー起動
     e.Start(":8000")
 }
-
-func hello(c echo.Context) error {
-    return c.String(200, "Hello, World!")
-}

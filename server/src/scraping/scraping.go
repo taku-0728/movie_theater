@@ -1,6 +1,7 @@
 package scraping
 
 import (
+    // "encoding/json"
     "fmt"
     "strings"
     "net/http"
@@ -58,12 +59,9 @@ func GetMovieTheater(c echo.Context) error {
         }
     })
 
-    result := []string{}
-    title := c.FormValue("title")
-
     // Chromeを利用することを宣言
     agoutiDriver := agouti.ChromeDriver(
-        agouti.ChromeOptions("args", []string{"--headless", "--disable-gpu", "--no-sandbox"}),
+        agouti.ChromeOptions("args", []string{"--headless", "--disable-gpu", "--no-sandbox", "--disable-dev-shm-usage"}),
     )
     
     if err := agoutiDriver.Start(); err != nil {
@@ -78,7 +76,11 @@ func GetMovieTheater(c echo.Context) error {
         fmt.Println("NewPage()でエラー発生")
         fmt.Println("Some context: %v", err)
         return c.JSON(200, map[string]interface{}{"error": "NewPage()でエラー発生"})
-    }    
+    }
+
+    title := c.FormValue("title")
+    var theaterName []string
+    var schedule []string
 
     // 都道府県に対応する劇場のサイトに入り上映状況を取得
     for _, theater := range theaterList {
@@ -101,19 +103,25 @@ func GetMovieTheater(c echo.Context) error {
             fmt.Println("Some context: %v", err)
         }
 
-        // // titleを抜き出し
-        doc.Find(".schedule-body-section-item").Each(func(_ int, page *goquery.Selection) {
+        theaterName = append(theaterName, doc.Find("title").Text())
+
+        doc.Find(".schedule-body-section-item").Each(func(j int, page *goquery.Selection) {
             if strings.Contains(title, page.Find(".schedule-body-title").Text()) {
                 page.Find(".schedule-item").Each(func(_ int, element *goquery.Selection){
                     text := element.Find(".start").Text() + "〜" + element.Find(".end").Text() + "：" + element.Find(".status").Text()
-                    result = append(result, text)
+                    schedule = append(schedule, text)
                 })
             } 
         })
-
-        
     }
 
+    result := map[int]map[string]interface{}{}
 
-    return c.JSON(200, map[string]interface{}{"hello": result})
+    for i := 0; i < len(theaterName); i++ {
+        result[i] = map[string]interface{}{}
+        result[i]["theaterName"] = theaterName[i]
+        result[i]["schedule"] = schedule
+    }
+
+    return c.JSON(200, result)
 }
