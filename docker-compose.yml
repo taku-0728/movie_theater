@@ -4,8 +4,8 @@ services:
   server: # service名
     build: ./server # ビルドに使用するDockerfileがあるディレクトリ指定
     tty: true # コンテナの起動永続化
-    # volumes:
-    #   - ./server:/server/work # マウントディレクトリ指定
+    volumes:
+      - ./server/src:/server/work # マウントディレクトリ指定
     container_name: server
     ports:
       - 8000:8000
