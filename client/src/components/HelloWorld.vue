@@ -6,9 +6,11 @@
       <button type="submit">submit</button>
     </form>
     <div v-for='(data, key) in results' :key="key">
-      <h3>{{ data.theaterName }}</h3>
-      <div v-for='(schedule, key) in data.schedule' :key="key">
-        <p>{{ schedule }}</p>
+      <h3 class="theater-name">{{ data.theaterName }}</h3>
+      <div class="flex-container">
+        <div class="flex-item" v-for='(schedule, key) in data.schedule' :key="key">
+          <p>{{ schedule }}</p>
+        </div>
       </div>
     </div>
   </div>
@@ -63,5 +65,18 @@ li {
 }
 a {
   color: #42b983;
+}
+.flex-container {
+  width: 100%;
+  /* margin-left: 10%; */
+  display: flex;
+  flex-direction: row;
+  background-color: black;
+}
+.flex-item {
+  width: 7%;
+  margin: 20px;
+  color: white;
+  background-color: gray;
 }
 </style>

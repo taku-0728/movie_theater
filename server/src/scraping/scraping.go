@@ -111,8 +111,8 @@ func GetMovieTheater(c echo.Context) error {
             fmt.Println("Some context: %v", err)
         }
 
-        // 各劇場一覧ページのタイトル(映画館名)を格納
-        theaterName = append(theaterName, doc.Find("title").Text())
+        // 各劇場一覧ページのタイトル(映画館名)の「：」より前を格納
+        theaterName = append(theaterName, doc.Find("title").Text()[:strings.Index(doc.Find("title").Text(), "：")])
         var time []string
 
         doc.Find(".schedule-body-section-item").EachWithBreak(func(_ int, page *goquery.Selection) bool {
@@ -120,7 +120,7 @@ func GetMovieTheater(c echo.Context) error {
             if strings.Contains(title, page.Find(".schedule-body-title").Text()) {
                 // 入力されたタイトルと一致していれば上映スケジュールを取得
                 page.Find(".schedule-item").Each(func(_ int, element *goquery.Selection){
-                    text := element.Find(".start").Text() + "〜" + element.Find(".end").Text() + "：" + element.Find(".status").Text()
+                    text := element.Find(".start").Text() + "〜" + element.Find(".end").Text() + " " + element.Find(".status").Text()
                     time = append(time, text)
                 })
                 return false
