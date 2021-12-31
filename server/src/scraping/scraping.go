@@ -1,7 +1,6 @@
 package scraping
 
 import (
-    // "encoding/json"
     "fmt"
     "strings"
     "net/http"
@@ -85,6 +84,7 @@ func GetMovieTheater(c echo.Context) error {
 
     var theaterName []string
     var schedule [][]string
+    var statuses [][]string
 
     // 都道府県に対応する劇場のサイトに入り上映状況を取得
     for _, theater := range theaterList {
@@ -114,14 +114,17 @@ func GetMovieTheater(c echo.Context) error {
         // 各劇場一覧ページのタイトル(映画館名)の「：」より前を格納
         theaterName = append(theaterName, doc.Find("title").Text()[:strings.Index(doc.Find("title").Text(), "：")])
         var time []string
+        var status []string
 
         doc.Find(".schedule-body-section-item").EachWithBreak(func(_ int, page *goquery.Selection) bool {
             // 映画タイトルの中から入力されたタイトルと一致しているかを判別
             if strings.Contains(title, page.Find(".schedule-body-title").Text()) {
                 // 入力されたタイトルと一致していれば上映スケジュールを取得
                 page.Find(".schedule-item").Each(func(_ int, element *goquery.Selection){
-                    text := element.Find(".start").Text() + "〜" + element.Find(".end").Text() + " " + element.Find(".status").Text()
+                    text := element.Find(".start").Text() + "〜" + element.Find(".end").Text() + " "
+                    condition := element.Find(".status").Text()
                     time = append(time, text)
+                    status = append(status, condition)
                 })
                 return false
             }
@@ -129,6 +132,7 @@ func GetMovieTheater(c echo.Context) error {
         })
 
         schedule = append(schedule, time)
+        statuses = append(statuses, status)
         time = nil
     }
 
@@ -138,6 +142,7 @@ func GetMovieTheater(c echo.Context) error {
         result[i] = map[string]interface{}{}
         result[i]["theaterName"] = theaterName[i]
         result[i]["schedule"] = schedule[i]
+        result[i]["status"] = statuses[i]
     }
 
     return c.JSON(200, result)

@@ -10,6 +10,7 @@
       <div class="flex-container">
         <div class="flex-item" v-for='(schedule, key) in data.schedule' :key="key">
           <p>{{ schedule }}</p>
+          <p :class="status(data.status[key])">{{ data.status[key] }}</p>
         </div>
       </div>
     </div>
@@ -30,13 +31,11 @@ export default {
       this.results = JSON.parse(result);
       console.log(this.results);
     },
-
     async sendRequest() {
       const url = 'http://localhost:8000';
       const data = new URLSearchParams();
       data.append("prefectures",this.prefectures);
       data.append("title",this.title);
-
       return fetch(url, {
         method: 'POST',
         headers: {
@@ -45,6 +44,13 @@ export default {
         },
         body: data,
       });
+    },
+    status(status) {
+      if (status === "販売期間外") {
+        return "blue";
+      } else {
+        return "red";
+      }
     }
   }
 }
@@ -78,5 +84,11 @@ a {
   margin: 20px;
   color: white;
   background-color: gray;
+}
+.blue {
+  color: blue;
+}
+.red {
+  color: red;
 }
 </style>
