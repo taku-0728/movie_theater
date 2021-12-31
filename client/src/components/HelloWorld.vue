@@ -5,6 +5,9 @@
       <input type="text" v-model="title" name="title" placeholder="作品名を入力してください"><br>
       <button type="submit">submit</button>
     </form>
+    <div v-if="results['error'] !== undefined">
+      <p>{{ results['error'] }}</p>
+    </div>
     <div v-for='(data, key) in results' :key="key">
       <h3 class="theater-name">{{ data.theaterName }}</h3>
       <div class="flex-container">

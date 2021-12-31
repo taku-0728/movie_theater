@@ -12,6 +12,8 @@ import (
 
 func GetMovieTheater(c echo.Context) error {
 
+    result := map[int]map[string]interface{}{}
+
     // TOHOシネマの劇場一覧サイト
     url := "https://www.tohotheater.jp/theater/find.html"
 
@@ -25,8 +27,6 @@ func GetMovieTheater(c echo.Context) error {
     utfBody, err := iconv.NewReader(res.Body, "Shift_JIS", "utf-8")
 
     if err != nil {
-        fmt.Println("エンコーディングに失敗しました。")
-        fmt.Errorf("Some context: %v", err)
         return c.JSON(200, map[string]interface{}{"error": "エンコーディングに失敗しました。"})
     }
 
@@ -135,8 +135,6 @@ func GetMovieTheater(c echo.Context) error {
         statuses = append(statuses, status)
         time = nil
     }
-
-    result := map[int]map[string]interface{}{}
 
     for i := 0; i < len(theaterName); i++ {
         result[i] = map[string]interface{}{}
